@@ -1,0 +1,2519 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#1a1a1a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Cloud">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icon-192.png') }}">
+    <title>Домашнее Облако</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #2d2d2d;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #404040;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+            color: #ffffff;
+        }
+
+        .toolbar {
+            background: #252525;
+            padding: 20px 30px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 140px;
+            max-width: 200px;
+            color: #ffffff !important;
+        }
+
+        .btn-primary {
+            background: #404040;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #505050;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-success {
+            background: #404040;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #505050;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .btn-category {
+            background: #353535;
+            color: #ffffff;
+            border: 1px solid #505050;
+            text-decoration: none;
+        }
+
+        .btn-category:hover {
+            background: #404040;
+            border-color: #606060;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            text-decoration: none;
+        }
+
+        .btn-category.active {
+            background: #505050;
+            border-color: #707070;
+        }
+
+        /* Адаптивность текста кнопок */
+        @media (max-width: 1200px) {
+            .btn-category .btn-text {
+                display: none;
+            }
+        }
+
+        .search-row {
+            background: #252525;
+            padding: 10px 30px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .breadcrumb {
+            background: #2d2d2d;
+            padding: 15px 30px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .breadcrumb a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        .breadcrumb span {
+            color: #ffffff;
+        }
+
+        .stats {
+            background: #252525;
+            padding: 15px 30px;
+            border-bottom: 1px solid #404040;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+        }
+
+        .stat-item strong {
+            color: #ffffff;
+        }
+
+        .content {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .file-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .file-item {
+            background: #353535;
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .file-item:hover {
+            background: #404040;
+            border-color: #606060;
+            transform: translateX(5px);
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .file-info:hover {
+            background-color: #404040;
+        }
+
+        a.file-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+
+        .file-icon {
+            font-size: 32px;
+            width: 50px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .file-list-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 6px;
+            background: #252525;
+        }
+
+        .file-details {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            font-size: 13px;
+            color: #a0a0a0;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-info {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #2563eb;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #a0a0a0;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: #ffffff;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            border: 1px solid #404040;
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #404040;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #252525;
+            color: #ffffff;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #606060;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            background: #404040;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #505050;
+        }
+
+        .flash-messages {
+            padding: 0 30px;
+            padding-top: 20px;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #1e3a1e;
+            color: #4ade80;
+            border: 1px solid #2d5a2d;
+        }
+
+        .alert-error {
+            background: #3a1e1e;
+            color: #f87171;
+            border: 1px solid #5a2d2d;
+        }
+
+        /* Прогресс бар загрузки */
+        .upload-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 99999;
+            background: rgba(0, 0, 0, 0.95);
+            padding: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .upload-progress.active {
+            display: flex;
+        }
+
+        .progress-container {
+            max-width: 600px;
+            width: 100%;
+            background: #2d2d2d;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .progress-text {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 40px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            border: 3px solid #4ade80;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4ade80, #22c55e, #10b981);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.5);
+        }
+
+        .progress-percentage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 18px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+            z-index: 1;
+        }
+
+        .progress-details {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .progress-ok-button {
+            display: none;
+            margin-top: 20px;
+            padding: 12px 40px;
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);
+        }
+
+        .progress-ok-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.6);
+        }
+
+        .progress-ok-button:active {
+            transform: translateY(0);
+        }
+
+        .progress-ok-button.show {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-upload-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            background: #404040;
+            color: #ffffff !important;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-height: 40px;
+            box-sizing: border-box;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 140px;
+            max-width: 200px;
+            justify-content: center;
+        }
+
+        .file-upload-label:hover {
+            background: #505050;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Переключатель вида */
+        .view-toggle {
+            display: flex;
+            gap: 5px;
+            background: #1a1a1a;
+            padding: 3px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .view-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 18px;
+            transition: all 0.3s;
+            color: #a0a0a0;
+        }
+
+        .view-btn.active {
+            background: #404040;
+            color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .view-btn:hover {
+            color: #ffffff;
+        }
+
+        /* Вид плиткой */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 8px;
+        }
+
+        .file-grid .file-item {
+            flex-direction: column;
+            padding: 4px;
+            text-align: center;
+            position: relative;
+        }
+
+        .file-grid .file-info {
+            flex-direction: column;
+            width: 100%;
+            gap: 0;
+        }
+
+        .file-grid .file-icon {
+            font-size: 48px;
+            width: 100%;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .file-grid .file-info a {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-grid .file-thumbnail {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            background: #252525;
+        }
+
+        .file-grid .file-details {
+            width: 100%;
+        }
+
+        .file-grid .file-name {
+            display: none;
+        }
+
+        /* Показать имена для папок в режиме плитки */
+        .file-grid .file-item.folder .file-name {
+            display: block;
+            margin-top: 8px;
+            font-size: 13px;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            padding: 0 5px;
+        }
+
+        /* Показать имена для результатов поиска с выравниванием слева */
+        .file-grid .file-item.search-result .file-name {
+            display: block !important;
+            text-align: left !important;
+            margin-top: 8px;
+            font-size: 13px;
+            padding: 0 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-grid .file-item.search-result .file-path {
+            display: block !important;
+            text-align: left !important;
+            font-size: 0.7em;
+            color: #888;
+            padding: 0 5px;
+            margin-top: 2px;
+        }
+        
+        /* Убедимся, что путь показывается */
+        #fileGrid .search-result .file-path {
+            display: block !important;
+            text-align: left !important;
+        }
+        
+        #fileGrid .search-result .file-name {
+            display: block !important;
+            text-align: left !important;
+        }
+
+        .file-grid .file-meta {
+            display: none;
+        }
+
+        .file-grid .file-actions {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+        }
+
+        .file-grid .more-btn {
+            background: #404040;
+            color: #ffffff;
+            font-weight: 900;
+        }
+
+        .file-grid .more-btn:hover {
+            background: #505050;
+        }
+
+        /* Скрыть списочный вид */
+        .file-list.hidden {
+            display: none;
+        }
+
+        .file-grid.hidden {
+            display: none;
+        }
+
+        /* Поиск */
+        .search-box {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            max-width: 100%;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px 40px 10px 15px;
+            border: 2px solid #404040;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #252525;
+            color: #ffffff;
+        }
+
+        .search-input::placeholder {
+            color: #808080;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #606060;
+        }
+
+        .btn-search {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            color: #999999;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 20px;
+            display: none;
+        }
+
+        .btn-search:hover {
+            background: #404040;
+            color: #ffffff;
+        }
+
+        .search-input:not(:placeholder-shown) ~ .btn-search {
+            display: block;
+        }
+
+        /* Drag and Drop - УБРАНО */
+
+        /* Модальное окно для предпросмотра изображений */
+        .image-preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .image-preview-modal.active {
+            display: flex;
+        }
+
+        .image-preview-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+        }
+
+        .image-preview-content img,
+        .image-preview-content video {
+            max-width: 100%;
+            max-height: 90vh;
+            border-radius: 10px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        /* Анимации для перелистывания */
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .image-preview-content img.slide-right {
+            animation: slideInRight 0.5s ease;
+        }
+
+        .image-preview-content img.slide-left {
+            animation: slideInLeft 0.5s ease;
+        }
+
+        .close-preview {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #404040;
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-preview:hover {
+            background: #505050;
+        }
+
+        .prev-image,
+        .next-image {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(64, 64, 64, 0.8);
+            color: #ffffff;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .prev-image {
+            left: 20px;
+        }
+
+        .next-image {
+            right: 20px;
+        }
+
+        .prev-image:hover,
+        .next-image:hover {
+            background: rgba(80, 80, 80, 0.9);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Иконки для типов файлов */
+        .file-icon.image { color: #10b981; }
+        .file-icon.video { color: #ef4444; }
+        .file-icon.audio { color: #f59e0b; }
+        .file-icon.document { color: #3b82f6; }
+        .file-icon.archive { color: #8b5cf6; }
+        .file-icon.code { color: #ec4899; }
+
+        /* Меню с тремя точками */
+        .more-menu {
+            position: relative;
+            display: inline-block;
+        }
+
+        .more-btn {
+            background: transparent;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.3s;
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .more-btn:hover {
+            background: #505050;
+        }
+
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 100%;
+            left: auto;
+            top: 0;
+            margin-right: 5px;
+            background: #2d2d2d;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 1000;
+            min-width: 150px;
+            max-width: 180px;
+            overflow: hidden;
+            border: 1px solid #404040;
+            white-space: nowrap;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            color: #ffffff;
+            text-decoration: none;
+            transition: background 0.2s;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .dropdown-item:hover {
+            background: #404040;
+        }
+
+        .dropdown-item.danger {
+            color: #f87171;
+        }
+
+        .dropdown-item.danger:hover {
+            background: #3a1e1e;
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: #404040;
+            margin: 4px 0;
+        }
+
+        /* Скрыть desktop кнопки на мобильных */
+        @media (max-width: 768px) {
+            .file-actions.desktop {
+                display: none;
+            }
+
+            .file-actions.mobile {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .file-actions.mobile {
+                display: flex;
+            }
+
+            .file-actions.desktop {
+                display: none;
+            }
+        }
+
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            body {
+                padding: 0;
+            }
+
+            .container {
+                border-radius: 0;
+                min-height: 100vh;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .header p {
+                font-size: 0.85em;
+            }
+
+            .header {
+                padding: 12px 10px;
+            }
+
+            .toolbar {
+                display: none !important; /* Скрыть верхнюю панель на мобильных */
+            }
+
+            .btn-text {
+                display: none;
+            }
+
+            .search-row {
+                padding: 6px 10px;
+                gap: 8px;
+            }
+
+            .search-box {
+                flex: 1;
+                max-width: 100%;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 11px;
+                white-space: nowrap;
+                gap: 4px;
+                flex: 1;
+                min-width: 60px;
+                max-width: 100px;
+            }
+
+            .btn-category {
+                padding: 6px 8px;
+                font-size: 11px;
+                min-width: 50px;
+            }
+
+            .btn-search {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .breadcrumb {
+                padding: 6px 10px;
+                font-size: 11px;
+            }
+
+            .stats {
+                padding: 6px 10px;
+                gap: 10px;
+                font-size: 11px;
+            }
+
+            .content {
+                padding: 8px;
+            }
+
+            .file-list {
+                gap: 6px;
+            }
+
+            .file-item {
+                flex-direction: row;
+                align-items: center;
+                padding: 6px 4px 6px 8px;
+                gap: 4px;
+            }
+
+            .file-info {
+                flex: 1;
+                gap: 4px;
+                min-width: 0;
+                overflow: hidden;
+                margin-right: 4px;
+            }
+
+            .file-icon {
+                font-size: 18px;
+                width: 28px;
+                flex-shrink: 0;
+            }
+
+            .file-list-thumbnail {
+                width: 28px;
+                height: 28px;
+                border-radius: 4px;
+            }
+
+            .file-details {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                max-width: calc(100vw - 120px);
+            }
+
+            .file-name {
+                font-size: 12px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+
+            .file-meta {
+                font-size: 10px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+
+            .file-actions {
+                flex-shrink: 0;
+                margin-left: 4px;
+            }
+
+            .file-actions .btn-sm {
+                padding: 4px 6px;
+                font-size: 10px;
+            }
+
+            .more-btn {
+                width: 36px;
+                height: 36px;
+                font-size: 22px;
+                padding: 0;
+                flex-shrink: 0;
+                font-weight: 900;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 16px;
+            }
+
+            .modal-header h2 {
+                font-size: 1.2em;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+                margin-bottom: 6px;
+            }
+
+            .form-group input {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            .empty-state {
+                padding: 30px 12px;
+            }
+
+            .empty-state-icon {
+                font-size: 50px;
+            }
+
+            .empty-state h3 {
+                font-size: 18px;
+            }
+
+            .empty-state p {
+                font-size: 13px;
+            }
+
+            .image-preview-content {
+                max-width: 95%;
+            }
+
+            .close-preview {
+                top: 10px;
+                right: 10px;
+                width: 32px;
+                height: 32px;
+                font-size: 18px;
+            }
+
+            .prev-image,
+            .next-image {
+                width: 40px;
+                height: 40px;
+                font-size: 28px;
+            }
+
+            .prev-image {
+                left: 10px;
+            }
+
+            .next-image {
+                right: 10px;
+            }
+
+            .file-upload-label {
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+
+            .alert {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+
+            .flash-messages {
+                padding: 8px 10px;
+            }
+
+            .file-list {
+                gap: 8px;
+            }
+
+            /* Плиточный вид на мобильных */
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 4px;
+            }
+
+            .file-grid .file-item {
+                padding: 4px;
+            }
+
+            .file-grid .file-icon {
+                font-size: 36px;
+                height: 80px;
+            }
+
+            .file-grid .file-thumbnail {
+                height: 80px;
+            }
+
+            .file-grid .file-name {
+                display: none;
+            }
+
+            .file-grid .more-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 16px;
+                font-weight: 900;
+            }
+
+            .view-toggle {
+                flex-shrink: 0;
+            }
+
+            .view-btn {
+                padding: 4px 8px;
+                font-size: 14px;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.2em;
+            }
+
+            .header p {
+                font-size: 0.75em;
+            }
+
+            .stats {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .stat-item {
+                font-size: 10px;
+            }
+
+            .search-box {
+                gap: 5px;
+            }
+
+            .search-input {
+                padding: 6px 8px;
+                font-size: 11px;
+            }
+
+            .file-item {
+                padding: 5px 2px 5px 6px;
+                gap: 3px;
+            }
+
+            .file-name {
+                font-size: 11px;
+            }
+
+            .file-meta {
+                font-size: 9px;
+            }
+
+            .file-icon {
+                font-size: 16px;
+                width: 24px;
+            }
+
+            .file-details {
+                max-width: calc(100vw - 100px);
+            }
+
+            .more-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 20px;
+                font-weight: 900;
+            }
+        }
+
+        /* Нижняя навигация (мобильная) */
+        .bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2d2d2d;
+            border-top: 1px solid #404040;
+            padding: 6px 0;
+            z-index: 1000;
+            overflow-x: auto;
+        }
+
+        .bottom-nav-content {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            min-width: 100%;
+            gap: 2px;
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: 6px 8px;
+            color: #cccccc;
+            text-decoration: none;
+            font-size: 10px;
+            cursor: pointer;
+            transition: color 0.2s;
+            flex: 1;
+            min-width: 50px;
+        }
+
+        .bottom-nav-item:hover,
+        .bottom-nav-item.active {
+            color: #4CAF50;
+        }
+
+        .bottom-nav-item .nav-icon {
+            font-size: 22px;
+        }
+
+        /* Показать на мобильных */
+        @media (max-width: 768px) {
+            .bottom-nav {
+                display: block;
+            }
+
+            /* Добавить отступ снизу для контента */
+            .container {
+                padding-bottom: 80px;
+            }
+        }
+
+        /* Кнопка загрузки (плавающая) */
+        .fab-upload {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: #4CAF50;
+            border-radius: 50%;
+            border: none;
+            color: white;
+            font-size: 32px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            transition: all 0.3s;
+            line-height: 1;
+        }
+
+        .fab-upload:hover {
+            background: #45a049;
+            transform: scale(1.1);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+        }
+
+        .fab-upload:active {
+            transform: scale(0.95);
+        }
+
+        /* На десктопе кнопка в правом нижнем углу */
+        @media (min-width: 769px) {
+            .fab-upload {
+                bottom: 20px;
+            }
+        }
+
+        /* На мобильных над нижней панелью */
+        @media (max-width: 768px) {
+            .fab-upload {
+                bottom: 90px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☁️ Семейное Облако{% if category %} - {{ category_name }}{% endif %}</h1>
+            <p>{% if category %}Все файлы категории "{{ category_name }}" из всех папок{% endif %}</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Прогресс бар загрузки -->
+        <div class="upload-progress" id="uploadProgress">
+            <div class="progress-container">
+                <div class="progress-text" id="progressText">Загрузка файлов...</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill"></div>
+                    <div class="progress-percentage" id="progressPercentage">0%</div>
+                </div>
+                <div class="progress-details" id="progressDetails">0 MB / 0 MB</div>
+                <button class="progress-ok-button" id="progressOkButton" onclick="closeUploadProgress()">ОК</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <a href="{{ url_for('browse', path='') }}" class="btn btn-category {% if not category and not current_path %}active{% endif %}" title="Главная">
+                🏠<span class="btn-text"> Главная</span>
+            </a>
+            <button class="btn btn-primary" onclick="openCreateFolderModal()">
+                📁<span class="btn-text"> Создать папку</span>
+            </button>
+            <a href="{{ url_for('browse_by_category', category='image', path=current_path) }}" class="btn btn-category {% if category == 'image' %}active{% endif %}" title="Фото">
+                🖼️<span class="btn-text"> Фото</span>
+            </a>
+            <a href="{{ url_for('browse_by_category', category='video', path=current_path) }}" class="btn btn-category {% if category == 'video' %}active{% endif %}" title="Видео">
+                🎬<span class="btn-text"> Видео</span>
+            </a>
+            <a href="{{ url_for('browse_by_category', category='document', path=current_path) }}" class="btn btn-category {% if category == 'document' %}active{% endif %}" title="Документы">
+                📄<span class="btn-text"> Документы</span>
+            </a>
+            <form method="POST" action="{{ url_for('upload_direct') }}" enctype="multipart/form-data" id="uploadForm" style="display: inline-flex;">
+                <input type="hidden" name="current_path" value="{{ current_path }}">
+                <input type="file" name="file" id="fileInput" multiple>
+                <label for="fileInput" class="file-upload-label btn">
+                    <span style="color: #ffffff;">+</span><span class="btn-text"> Загрузить файлы</span>
+                </label>
+            </form>
+        </div>
+
+        <div class="search-row">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск файлов..." oninput="filterFiles()">
+                <button type="button" class="btn-search" onclick="clearSearch()">✕</button>
+            </div>
+            <div class="view-toggle">
+                <button class="view-btn active" onclick="switchView('list')" id="listViewBtn" title="Список">☰</button>
+                <button class="view-btn" onclick="switchView('grid')" id="gridViewBtn" title="Плитка">⊞</button>
+            </div>
+        </div>
+
+        <div class="breadcrumb">
+            <a href="{{ url_for('browse', path='') }}">🏠 Главная</a>
+            {% for crumb in breadcrumbs %}
+                <span>›</span>
+                <a href="{{ url_for('browse', path=crumb.path) }}">{{ crumb.name }}</a>
+            {% endfor %}
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                📊 Папок: <strong>{{ total_folders }}</strong>
+            </div>
+            <div class="stat-item">
+                📄 Файлов: <strong>{{ total_files }}</strong>
+            </div>
+            <div class="stat-item">
+                💾 Размер: <strong>{{ total_size }}</strong>
+            </div>
+        </div>
+
+        <div class="content">
+            {% if items %}
+                <!-- Список -->
+                <div class="file-list" id="fileList">
+                    {% if current_path %}
+                    <!-- Кнопка "Назад" в родительскую папку -->
+                    <div class="file-item">
+                        <a href="{{ url_for('browse', path=parent_path) }}" class="file-info" style="text-decoration: none; color: inherit;">
+                            <div class="file-icon">📁</div>
+                            <div class="file-details">
+                                <div class="file-name" style="font-weight: bold;">..</div>
+                                <div class="file-meta">
+                                    <span class="file-size"></span>
+                                    <span class="file-date">Назад</span>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="file-actions"></div>
+                    </div>
+                    {% endif %}
+                    {% for item in items %}
+                        <div class="file-item">
+                            {% if item.is_dir %}
+                                <a href="{{ url_for('browse', path=item.path) }}" class="file-info" style="text-decoration: none; color: inherit;">
+                            {% elif item.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')) %}
+                                <div class="file-info" onclick="previewImage('/preview/{{ item.path }}', '{{ item.name }}')" style="cursor: pointer;">
+                            {% elif item.name.lower().endswith(('.mp4', '.avi', '.mkv', '.mov', '.webm')) %}
+                                <div class="file-info" onclick="previewImage('/preview/{{ item.path }}', '{{ item.name }}')" style="cursor: pointer;">
+                            {% else %}
+                                <div class="file-info">
+                            {% endif %}
+                                <div class="file-icon {% if not item.is_dir %}{% if item.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')) %}image{% elif item.name.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')) %}video{% elif item.name.lower().endswith(('.mp3', '.wav', '.flac')) %}audio{% elif item.name.lower().endswith(('.doc', '.docx', '.pdf', '.txt')) %}document{% elif item.name.lower().endswith(('.zip', '.rar', '.7z')) %}archive{% elif item.name.lower().endswith(('.py', '.js', '.html', '.css', '.json')) %}code{% endif %}{% endif %}">
+                                    {% if item.is_dir %}
+                                        📁
+                                    {% elif item.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')) %}
+                                        <img src="/thumb/{{ item.path }}" class="file-list-thumbnail" alt="{{ item.name }}" loading="lazy">
+                                    {% elif item.name.lower().endswith(('.mp4', '.avi', '.mkv', '.mov')) %}
+                                        🎬
+                                    {% elif item.name.lower().endswith(('.mp3', '.wav', '.flac')) %}
+                                        🎵
+                                    {% elif item.name.lower().endswith(('.doc', '.docx', '.pdf')) %}
+                                        📝
+                                    {% elif item.name.lower().endswith(('.zip', '.rar', '.7z')) %}
+                                        🗜️
+                                    {% elif item.name.lower().endswith(('.py', '.js', '.html', '.css', '.json')) %}
+                                        💻
+                                    {% else %}
+                                        📄
+                                    {% endif %}
+                                </div>
+                                <div class="file-details">
+                                    <div class="file-name">{{ item.name }}</div>
+                                    <div class="file-meta">
+                                        {% if not item.is_dir %}{{ item.size_formatted }} • {% endif %}
+                                        Изменено: {{ item.modified }}
+                                    </div>
+                                </div>
+                            {% if item.is_dir %}
+                                </a>
+                            {% else %}
+                                </div>
+                            {% endif %}
+                            <!-- Кнопки для десктопа -->
+                            <div class="file-actions desktop" onclick="event.stopPropagation()">
+                                {% if not item.is_dir %}
+                                    <a href="{{ url_for('download_file', path=item.path) }}" class="btn btn-sm btn-info">
+                                        ⬇️ Скачать
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-sm btn-primary" onclick="openRenameModal('{{ item.path }}', '{{ item.name }}')">
+                                    ✏️ Переименовать
+                                </button>
+                                <a href="{{ url_for('delete_item', path=item.path) }}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Вы уверены, что хотите удалить {{ item.name }}?')">
+                                    🗑️ Удалить
+                                </a>
+                            </div>
+                            <!-- Меню с тремя точками для мобильных -->
+                            <div class="file-actions mobile" onclick="event.stopPropagation()">
+                                <div class="more-menu">
+                                    <button class="more-btn" onclick="toggleMenu(event, 'menu-{{ loop.index }}')">⋮</button>
+                                    <div class="dropdown-menu" id="menu-{{ loop.index }}">
+                                        {% if not item.is_dir %}
+                                            <a href="{{ url_for('download_file', path=item.path) }}" class="dropdown-item">
+                                                ⬇️ Скачать
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                        {% endif %}
+                                        <button class="dropdown-item" onclick="openRenameModal('{{ item.path }}', '{{ item.name }}'); closeAllMenus();">
+                                            ✏️ Переименовать
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="{{ url_for('delete_item', path=item.path) }}" 
+                                           class="dropdown-item danger"
+                                           onclick="return confirm('Вы уверены, что хотите удалить {{ item.name }}?')">
+                                            🗑️ Удалить
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Плитка -->
+                <div class="file-grid hidden" id="fileGrid">
+                    {% if current_path %}
+                    <!-- Кнопка "Назад" в родительскую папку -->
+                    <div class="file-item folder">
+                        <div class="file-info">
+                            <a href="{{ url_for('browse', path=parent_path) }}" style="text-decoration: none; color: inherit; display: contents;">
+                                <div class="file-icon">📁</div>
+                            </a>
+                        </div>
+                        <div class="file-name" style="font-weight: bold;">..</div>
+                    </div>
+                    {% endif %}
+                    {% for item in items %}
+                        <div class="file-item{% if item.is_dir %} folder{% endif %}">
+                            <div class="file-info">
+                                {% if item.is_dir %}
+                                    <a href="{{ url_for('browse', path=item.path) }}" style="text-decoration: none; color: inherit; display: contents;">
+                                        <div class="file-icon">📁</div>
+                                    </a>
+                                {% elif item.name.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp')) %}
+                                    <img src="/thumb/{{ item.path }}" class="file-thumbnail" alt="{{ item.name }}" loading="lazy" onclick="previewImage('/preview/{{ item.path }}', '{{ item.name }}')">
+                                {% elif item.name.lower().endswith(('.mp4', '.avi', '.mkv', '.mov', '.webm')) %}
+                                    <img src="/thumb/{{ item.path }}" class="file-thumbnail" alt="{{ item.name }}" loading="lazy" onclick="previewImage('/preview/{{ item.path }}', '{{ item.name }}')" style="cursor: pointer;">
+                                {% elif item.name.lower().endswith(('.mp3', '.wav', '.flac')) %}
+                                    <div class="file-icon audio">🎵</div>
+                                {% elif item.name.lower().endswith(('.doc', '.docx', '.pdf', '.txt')) %}
+                                    <div class="file-icon document">📝</div>
+                                {% elif item.name.lower().endswith(('.zip', '.rar', '.7z')) %}
+                                    <div class="file-icon archive">🗜️</div>
+                                {% elif item.name.lower().endswith(('.py', '.js', '.html', '.css', '.json')) %}
+                                    <div class="file-icon code">💻</div>
+                                {% else %}
+                                    <div class="file-icon">📄</div>
+                                {% endif %}
+                                <div class="file-details">
+                                    <div class="file-name">
+                                        {% if item.is_dir %}
+                                            <a href="{{ url_for('browse', path=item.path) }}" style="text-decoration: none; color: inherit;">
+                                                {{ item.name }}
+                                            </a>
+                                        {% else %}
+                                            {{ item.name }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Меню с тремя точками для мобильных -->
+                            <div class="file-actions mobile">
+                                <div class="more-menu">
+                                    <button class="more-btn" onclick="toggleMenu(event, 'grid-menu-{{ loop.index }}')">⋮</button>
+                                    <div class="dropdown-menu" id="grid-menu-{{ loop.index }}">
+                                        {% if not item.is_dir %}
+                                            <a href="{{ url_for('download_file', path=item.path) }}" class="dropdown-item">
+                                                ⬇️ Скачать
+                                            </a>
+                                            <div class="dropdown-divider"></div>
+                                        {% endif %}
+                                        <button class="dropdown-item" onclick="openRenameModal('{{ item.path }}', '{{ item.name }}'); closeAllMenus();">
+                                            ✏️ Переименовать
+                                        </button>
+                                        <div class="dropdown-divider"></div>
+                                        <a href="{{ url_for('delete_item', path=item.path) }}" 
+                                           class="dropdown-item danger"
+                                           onclick="return confirm('Вы уверены, что хотите удалить {{ item.name }}?')">
+                                            🗑️ Удалить
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Кнопки для десктопа -->
+                            <div class="file-actions desktop">
+                                {% if not item.is_dir %}
+                                    <a href="{{ url_for('download_file', path=item.path) }}" class="btn btn-sm btn-info">
+                                        ⬇️ Скачать
+                                    </a>
+                                {% endif %}
+                                <button class="btn btn-sm btn-primary" onclick="openRenameModal('{{ item.path }}', '{{ item.name }}')">
+                                    ✏️ Переименовать
+                                </button>
+                                <a href="{{ url_for('delete_item', path=item.path) }}" 
+                                   class="btn btn-sm btn-danger"
+                                   onclick="return confirm('Вы уверены, что хотите удалить {{ item.name }}?')">
+                                    🗑️ Удалить
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">📭</div>
+                    <h3>Папка пуста</h3>
+                    <p>Загрузите файлы или создайте новую папку</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Модальное окно для создания папки -->
+    <div class="modal" id="createFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Создать новую папку</h2>
+            </div>
+            <form method="POST" action="{{ url_for('create_folder') }}">
+                <input type="hidden" name="current_path" value="{{ current_path }}">
+                <div class="form-group">
+                    <label for="folder_name">Имя папки:</label>
+                    <input type="text" id="folder_name" name="folder_name" required autofocus>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateFolderModal()">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Создать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для переименования -->
+    <div class="modal" id="renameModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Переименовать</h2>
+            </div>
+            <form method="POST" action="{{ url_for('rename_item') }}">
+                <input type="hidden" name="old_path" id="rename_old_path">
+                <div class="form-group">
+                    <label for="new_name">Новое имя:</label>
+                    <input type="text" id="new_name" name="new_name" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="closeRenameModal()">
+                        Отмена
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Переименовать
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальное окно для предпросмотра изображений и видео -->
+    <div class="image-preview-modal" id="imagePreviewModal">
+        <button class="close-preview" onclick="closeImagePreview()">✕</button>
+        <button class="prev-image" onclick="showPreviousImage()">‹</button>
+        <button class="next-image" onclick="showNextImage()">›</button>
+        <div class="image-preview-content">
+            <img id="previewImage" src="" alt="" style="display: none;">
+            <video id="previewVideo" controls style="display: none; max-width: 100%; max-height: 90vh; border-radius: 10px;">
+                <source src="" type="">
+                Ваш браузер не поддерживает это видео. Попробуйте скачать файл.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вида
+        let currentView = localStorage.getItem('fileView') || 'list';
+        
+        function switchView(view) {
+            const fileList = document.getElementById('fileList');
+            const fileGrid = document.getElementById('fileGrid');
+            const listBtn = document.getElementById('listViewBtn');
+            const gridBtn = document.getElementById('gridViewBtn');
+            
+            currentView = view;
+            localStorage.setItem('fileView', view);
+            
+            if (view === 'list') {
+                fileList.classList.remove('hidden');
+                fileGrid.classList.add('hidden');
+                listBtn.classList.add('active');
+                gridBtn.classList.remove('active');
+            } else {
+                fileList.classList.add('hidden');
+                fileGrid.classList.remove('hidden');
+                listBtn.classList.remove('active');
+                gridBtn.classList.add('active');
+            }
+        }
+        
+        // Восстановить выбранный вид при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentView === 'grid') {
+                switchView('grid');
+            }
+        });
+
+        // Живой поиск файлов с серверным запросом
+        let searchTimeout;
+        let originalListContent = '';
+        let originalGridContent = '';
+        
+        // Сохранить оригинальное содержимое при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            originalListContent = document.getElementById('fileList').innerHTML;
+            originalGridContent = document.getElementById('fileGrid').innerHTML;
+        });
+        
+        function filterFiles() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.querySelector('.btn-search');
+            const searchTerm = searchInput.value.trim();
+            
+            // Показать/скрыть кнопку очистки
+            if (searchTerm) {
+                searchButton.style.display = 'block';
+            } else {
+                searchButton.style.display = 'none';
+                // Восстановить оригинальное содержимое
+                restoreOriginalContent();
+                return;
+            }
+            
+            // Задержка перед запросом
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch(searchTerm);
+            }, 300);
+        }
+        
+        function restoreOriginalContent() {
+            document.getElementById('fileList').innerHTML = originalListContent;
+            document.getElementById('fileGrid').innerHTML = originalGridContent;
+        }
+
+        function performSearch(query) {
+            // Всегда ищем от корня (пустой path = весь storage)
+            fetch(`/api/search?q=${encodeURIComponent(query)}&path=`)
+                .then(response => response.json())
+                .then(results => {
+                    displaySearchResults(results);
+                })
+                .catch(error => {
+                    console.error('Ошибка поиска:', error);
+                });
+        }
+
+        function displaySearchResults(results) {
+            console.log('Результаты поиска:', results);
+            const fileList = document.getElementById('fileList');
+            const fileGrid = document.getElementById('fileGrid');
+            
+            // Очистить контейнеры
+            fileList.innerHTML = '';
+            fileGrid.innerHTML = '';
+            
+            if (results.length === 0) {
+                fileList.innerHTML = '<div style="padding: 20px; text-align: center; color: #888;">Ничего не найдено</div>';
+                return;
+            }
+            
+            // Создать элементы для результатов
+            results.forEach(result => {
+                console.log('Создаём элемент для:', result.name);
+                // Создать элемент списка
+                const listItem = createListItem(result);
+                fileList.appendChild(listItem);
+                
+                // Создать элемент сетки
+                const gridItem = createGridItem(result);
+                fileGrid.appendChild(gridItem);
+            });
+            console.log('Добавлено элементов:', results.length);
+        }
+        
+        function createListItem(file) {
+            const li = document.createElement('div');
+            li.className = 'file-item' + (file.is_dir ? ' folder' : '');
+            
+            let thumbnailHtml = '';
+            if (!file.is_dir && file.is_image) {
+                thumbnailHtml = `<img src="/preview/${file.path}" alt="" class="file-thumbnail-small" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; margin-right: 10px;">`;
+            } else if (file.is_dir) {
+                thumbnailHtml = '<span class="file-icon">📁</span>';
+            } else {
+                thumbnailHtml = `<span class="file-icon">${getFileIcon(file.name)}</span>`;
+            }
+            
+            const sizeText = file.is_dir ? '' : formatFileSize(file.size);
+            const downloadAttr = (file.is_dir || file.is_image || file.is_video) ? '' : 'download';
+            const href = file.is_dir ? '/browse/' + file.path : (file.is_image ? '#' : '/download/' + file.path);
+            const onclick = file.is_image ? `previewImage('/preview/${file.path}', '${file.name}'); return false;` : '';
+            
+            li.innerHTML = `
+                ${thumbnailHtml}
+                <a href="${href}" 
+                   class="file-name" 
+                   ${downloadAttr}
+                   ${onclick ? `onclick="${onclick}"` : ''}>
+                    ${file.name}
+                </a>
+                <span class="file-size">${sizeText}</span>
+                <span class="file-path" style="color: #888; font-size: 0.85em; margin-left: 10px;">📍 ${file.path}</span>
+            `;
+            return li;
+        }
+        
+        function createGridItem(file) {
+            const div = document.createElement('div');
+            div.className = 'file-item search-result' + (file.is_dir ? ' folder' : '');
+            
+            const icon = file.is_dir ? '📁' : getFileIcon(file.name);
+            let thumbnailHtml = `<div class="file-icon-large">${icon}</div>`;
+            
+            if (!file.is_dir && file.is_image) {
+                thumbnailHtml = `<img src="/preview/${file.path}" alt="${file.name}" class="file-thumbnail">`;
+            }
+            
+            const downloadAttr = (file.is_dir || file.is_image || file.is_video) ? '' : 'download';
+            const href = file.is_dir ? '/browse/' + file.path : (file.is_image ? '#' : '/download/' + file.path);
+            const onclick = file.is_image ? `previewImage('/preview/${file.path}', '${file.name}'); return false;` : '';
+            
+            div.innerHTML = `
+                <a href="${href}" 
+                   ${downloadAttr}
+                   ${onclick ? `onclick="${onclick}"` : ''}>
+                    ${thumbnailHtml}
+                </a>
+                <div class="file-name">${file.name}</div>
+                <div class="file-path">📍 ${file.path}</div>
+            `;
+            return div;
+        }
+        
+        function getFileIcon(filename) {
+            const ext = filename.split('.').pop().toLowerCase();
+            if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].includes(ext)) return '🖼️';
+            if (['mp4', 'avi', 'mov', 'mkv', 'webm'].includes(ext)) return '🎬';
+            if (['mp3', 'wav', 'flac', 'ogg'].includes(ext)) return '🎵';
+            if (['pdf'].includes(ext)) return '📄';
+            if (['doc', 'docx'].includes(ext)) return '📝';
+            if (['xls', 'xlsx'].includes(ext)) return '📊';
+            if (['zip', 'rar', '7z', 'tar', 'gz'].includes(ext)) return '📦';
+            return '📄';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Б';
+            const k = 1024;
+            const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function clearSearch() {
+            const searchInput = document.getElementById('searchInput');
+            const searchButton = document.querySelector('.btn-search');
+            searchInput.value = '';
+            searchButton.style.display = 'none';
+            restoreOriginalContent();
+        }
+
+        // Меню с тремя точками
+        function toggleMenu(event, menuId) {
+            event.stopPropagation();
+            const menu = document.getElementById(menuId);
+            const allMenus = document.querySelectorAll('.dropdown-menu');
+            
+            // Закрыть все другие меню
+            allMenus.forEach(m => {
+                if (m.id !== menuId) {
+                    m.classList.remove('active');
+                }
+            });
+            
+            // Переключить текущее меню
+            const wasActive = menu.classList.contains('active');
+            menu.classList.toggle('active');
+            
+            // Если меню открылось, настроить его позицию
+            if (!wasActive && menu.classList.contains('active')) {
+                setTimeout(() => {
+                    const button = event.currentTarget;
+                    const buttonRect = button.getBoundingClientRect();
+                    const viewportHeight = window.innerHeight;
+                    
+                    // Если кнопка в нижней половине экрана - открываем вверх
+                    if (buttonRect.top > viewportHeight / 2) {
+                        // Открываем вверх
+                        menu.style.top = 'auto';
+                        menu.style.bottom = '100%';
+                        menu.style.marginBottom = '5px';
+                        menu.style.marginTop = '0';
+                    } else {
+                        // Открываем вниз
+                        menu.style.top = '0';
+                        menu.style.bottom = 'auto';
+                        menu.style.marginBottom = '0';
+                        menu.style.marginTop = '0';
+                    }
+                }, 10);
+            }
+        }
+
+        function closeAllMenus() {
+            const allMenus = document.querySelectorAll('.dropdown-menu');
+            allMenus.forEach(m => m.classList.remove('active'));
+        }
+
+        // Закрыть меню при клике вне его
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('.more-menu')) {
+                closeAllMenus();
+            }
+        });
+
+        // Создание папки
+        function openCreateFolderModal() {
+            document.getElementById('createFolderModal').classList.add('active');
+            document.getElementById('folder_name').focus();
+        }
+
+        function closeCreateFolderModal() {
+            document.getElementById('createFolderModal').classList.remove('active');
+        }
+
+        // Переименование
+        function openRenameModal(path, name) {
+            document.getElementById('rename_old_path').value = path;
+            document.getElementById('new_name').value = name;
+            document.getElementById('renameModal').classList.add('active');
+            document.getElementById('new_name').focus();
+            document.getElementById('new_name').select();
+        }
+
+        function closeRenameModal() {
+            document.getElementById('renameModal').classList.remove('active');
+        }
+
+        // Предпросмотр изображений и видео
+        let currentImageIndex = 0;
+        let imageList = [];
+
+        // Собрать список всех изображений и видео при загрузке страницы
+        function collectImageList() {
+            imageList = [];
+            const items = {{ items | tojson }};
+            items.forEach((item, index) => {
+                const nameLower = item.name.toLowerCase();
+                if (!item.is_dir) {
+                    // Изображения
+                    if (nameLower.endsWith('.png') || nameLower.endsWith('.jpg') || 
+                        nameLower.endsWith('.jpeg') || nameLower.endsWith('.gif') || 
+                        nameLower.endsWith('.bmp') || nameLower.endsWith('.webp')) {
+                        imageList.push({
+                            url: "{{ url_for('preview_file', path='') }}" + item.path,
+                            name: item.name,
+                            type: 'image'
+                        });
+                    }
+                    // Видео
+                    else if (nameLower.endsWith('.mp4') || nameLower.endsWith('.webm') || 
+                             nameLower.endsWith('.mov') || nameLower.endsWith('.avi') || 
+                             nameLower.endsWith('.mkv')) {
+                        imageList.push({
+                            url: "{{ url_for('preview_file', path='') }}" + item.path,
+                            name: item.name,
+                            type: 'video',
+                            videoType: nameLower.endsWith('.mp4') ? 'video/mp4' : 
+                                      nameLower.endsWith('.webm') ? 'video/webm' : 
+                                      nameLower.endsWith('.mov') ? 'video/mp4' : 
+                                      nameLower.endsWith('.avi') ? 'video/x-msvideo' :
+                                      nameLower.endsWith('.mkv') ? 'video/x-matroska' : 'video/mp4'
+                        });
+                    }
+                }
+            });
+        }
+
+        function previewImage(url, name) {
+            // Найти индекс текущего изображения
+            currentImageIndex = imageList.findIndex(img => img.url === url);
+            if (currentImageIndex === -1) currentImageIndex = 0;
+            
+            showImageAtIndex(currentImageIndex);
+        }
+
+        function showImageAtIndex(index, direction = 'next') {
+            if (imageList.length === 0) return;
+            
+            // Зацикливание
+            if (index < 0) index = imageList.length - 1;
+            if (index >= imageList.length) index = 0;
+            
+            currentImageIndex = index;
+            const item = imageList[index];
+            
+            const imgElement = document.getElementById('previewImage');
+            const videoElement = document.getElementById('previewVideo');
+            
+            // Остановить видео если оно играло
+            videoElement.pause();
+            videoElement.currentTime = 0;
+            
+            // Направление движения: next (вправо →), prev (влево ←)
+            const moveDirection = direction === 'next' ? 100 : -100;
+            
+            // Определяем какой элемент анимировать
+            const activeElement = item.type === 'video' ? videoElement : imgElement;
+            const inactiveElement = item.type === 'video' ? imgElement : videoElement;
+            
+            // Скрыть неактивный элемент
+            inactiveElement.style.display = 'none';
+            activeElement.style.display = 'block';
+            
+            // Сначала плавно исчезаем и уезжаем в сторону
+            activeElement.style.opacity = '0';
+            activeElement.style.transform = `translateX(${moveDirection}px)`;
+            
+            // Через 200ms меняем контент и появляемся с той же стороны
+            setTimeout(() => {
+                if (item.type === 'video') {
+                    // Загружаем видео
+                    videoElement.querySelector('source').src = item.url;
+                    videoElement.querySelector('source').type = item.videoType;
+                    videoElement.load();
+                    
+                    // Автоматически запускаем воспроизведение когда видео загрузится
+                    videoElement.onloadeddata = function() {
+                        videoElement.play().catch(err => {
+                            console.log('Автовоспроизведение заблокировано:', err);
+                        });
+                    };
+                    
+                    // Переход к следующему файлу после окончания видео
+                    videoElement.onended = function() {
+                        showNextImage();
+                    };
+                } else {
+                    // Загружаем изображение
+                    imgElement.src = item.url;
+                    imgElement.alt = item.name;
+                }
+                
+                // Устанавливаем начальную позицию - с той же стороны
+                activeElement.style.transform = `translateX(${moveDirection}px)`;
+                
+                // Плавно появляемся и возвращаемся на место
+                setTimeout(() => {
+                    activeElement.style.opacity = '1';
+                    activeElement.style.transform = 'translateX(0)';
+                }, 10);
+            }, 200);
+            
+            document.getElementById('imagePreviewModal').classList.add('active');
+        }
+
+        function showPreviousImage() {
+            showImageAtIndex(currentImageIndex - 1, 'prev');
+        }
+
+        function showNextImage() {
+            showImageAtIndex(currentImageIndex + 1, 'next');
+        }
+
+        function closeImagePreview() {
+            document.getElementById('imagePreviewModal').classList.remove('active');
+        }
+
+        // Собрать список изображений при загрузке
+        collectImageList();
+
+        // Закрытие модальных окон при клике вне их
+        document.getElementById('createFolderModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeCreateFolderModal();
+            }
+        });
+
+        document.getElementById('renameModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRenameModal();
+            }
+        });
+
+        document.getElementById('imagePreviewModal').addEventListener('click', function(e) {
+            if (e.target === this || e.target.classList.contains('close-preview')) {
+                closeImagePreview();
+            }
+        });
+
+        // Автоматическая отправка формы при выборе файлов
+        document.getElementById('fileInput').addEventListener('change', function() {
+            if (this.files.length > 0) {
+                document.getElementById('uploadForm').submit();
+            }
+        });
+
+        // Скрыть flash сообщения через 5 секунд
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            });
+        }, 5000);
+
+        // Закрытие предпросмотра на Escape и навигация стрелками
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('imagePreviewModal');
+            const isImagePreviewOpen = modal.classList.contains('active');
+            
+            if (e.key === 'Escape') {
+                closeImagePreview();
+                closeCreateFolderModal();
+                closeRenameModal();
+            } else if (isImagePreviewOpen && e.key === 'ArrowLeft') {
+                e.preventDefault();
+                showPreviousImage();
+            } else if (isImagePreviewOpen && e.key === 'ArrowRight') {
+                e.preventDefault();
+                showNextImage();
+            }
+        });
+
+        // Поддержка свайпов для мобильных устройств (горизонтальных и вертикальных)
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartY = 0;
+        let touchEndY = 0;
+        
+        const imagePreviewModal = document.getElementById('imagePreviewModal');
+        
+        imagePreviewModal.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartY = e.changedTouches[0].screenY;
+        }, false);
+        
+        imagePreviewModal.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, false);
+        
+        function handleSwipe() {
+            const swipeThreshold = 50; // минимальное расстояние для свайпа
+            const horizontalDiff = touchStartX - touchEndX;
+            const verticalDiff = touchStartY - touchEndY;
+            
+            // Определяем направление свайпа (горизонтальный или вертикальный)
+            if (Math.abs(horizontalDiff) > Math.abs(verticalDiff)) {
+                // Горизонтальный свайп
+                if (Math.abs(horizontalDiff) > swipeThreshold) {
+                    if (horizontalDiff > 0) {
+                        // Свайп влево - следующее фото
+                        showNextImage();
+                    } else {
+                        // Свайп вправо - предыдущее фото
+                        showPreviousImage();
+                    }
+                }
+            } else {
+                // Вертикальный свайп
+                if (Math.abs(verticalDiff) > swipeThreshold) {
+                    if (verticalDiff < 0) {
+                        // Свайп вниз - закрыть
+                        closeImagePreview();
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Скрытая форма для загрузки с автосортировкой (EXIF) -->
+    <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" id="uploadDirectForm" style="display: none;">
+        <input type="hidden" name="current_path" value="{{ current_path }}">
+        <input type="file" name="file" id="fileInputDirect" multiple>
+    </form>
+
+    <!-- Плавающая кнопка загрузки (с сортировкой по EXIF) -->
+    <button class="fab-upload" onclick="document.getElementById('fileInputDirect').click()" title="Загрузить с авто-сортировкой">
+        +
+    </button>
+
+    <!-- Нижняя навигация (мобильная) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-content">
+            <a href="/browse/" class="bottom-nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span>Главная</span>
+            </a>
+            <div class="bottom-nav-item" onclick="openCreateFolderModal()">
+                <span class="nav-icon">📁</span>
+                <span>Папка</span>
+            </div>
+            <a href="/category/image/" class="bottom-nav-item">
+                <span class="nav-icon">🖼️</span>
+                <span>Фото</span>
+            </a>
+            <a href="/category/video/" class="bottom-nav-item">
+                <span class="nav-icon">🎬</span>
+                <span>Видео</span>
+            </a>
+            <a href="/category/document/" class="bottom-nav-item">
+                <span class="nav-icon">📄</span>
+                <span>Документы</span>
+            </a>
+            <div class="bottom-nav-item" onclick="document.getElementById('fileInput').click()">
+                <span class="nav-icon">+</span>
+                <span>Загрузить</span>
+            </div>
+        </div>
+    </nav>
+
+    <script>
+        // Регистрация Service Worker для PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/sw.js')
+                    .then(registration => {
+                        console.log('Service Worker зарегистрирован:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Ошибка регистрации Service Worker:', error);
+                    });
+            });
+        }
+
+        // Показать кнопку установки PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Можно показать кнопку "Установить приложение"
+            console.log('PWA можно установить');
+        });
+
+        // Функция закрытия модального окна прогресса
+        function closeUploadProgress() {
+            const progressDiv = document.getElementById('uploadProgress');
+            const progressOkButton = document.getElementById('progressOkButton');
+            const progressBarFill = document.getElementById('progressBarFill');
+            
+            progressDiv.classList.remove('active');
+            progressDiv.style.display = 'none';
+            progressOkButton.classList.remove('show');
+            progressBarFill.style.width = '0%';
+            progressBarFill.style.background = 'linear-gradient(90deg, #4ade80, #22c55e, #10b981)';
+            
+            // Перезагрузить страницу
+            window.location.reload();
+        }
+
+        // Обработка загрузки файлов с прогресс баром
+        function setupUploadProgress() {
+            const uploadForm = document.getElementById('uploadForm');
+            const uploadDirectForm = document.getElementById('uploadDirectForm');
+            const fileInput = document.getElementById('fileInput');
+            const fileInputDirect = document.getElementById('fileInputDirect');
+
+            function uploadFiles(form, files) {
+                if (!files || files.length === 0) {
+                    return;
+                }
+
+                // Проверка размера файлов (500 MB максимум)
+                const maxSize = 500 * 1024 * 1024; // 500 MB
+                let totalSize = 0;
+                for (let i = 0; i < files.length; i++) {
+                    totalSize += files[i].size;
+                }
+
+                if (totalSize > maxSize) {
+                    const sizeMB = (totalSize / 1024 / 1024).toFixed(2);
+                    alert(`❌ Общий размер файлов слишком большой: ${sizeMB} MB.\nМаксимум: 500 MB за раз.\nПопробуйте загрузить файлы частями.`);
+                    return;
+                }
+
+                const formData = new FormData(form);
+                const progressDiv = document.getElementById('uploadProgress');
+                const progressBarFill = document.getElementById('progressBarFill');
+                const progressPercentage = document.getElementById('progressPercentage');
+                const progressText = document.getElementById('progressText');
+                const progressDetails = document.getElementById('progressDetails');
+                const progressOkButton = document.getElementById('progressOkButton');
+
+                console.log('🚀 Начинается загрузка файлов...');
+                console.log('📊 Прогресс бар элемент:', progressDiv);
+                
+                // Скрываем кнопку ОК при начале загрузки
+                progressOkButton.classList.remove('show');
+                
+                // Показываем прогресс бар
+                progressDiv.classList.add('active');
+                progressDiv.style.display = 'flex'; // Явно устанавливаем display
+                console.log('✅ Прогресс бар активирован!');
+                progressText.textContent = `Загрузка ${files.length} файл(ов)...`;
+
+                // Создаём XMLHttpRequest для отслеживания прогресса
+                const xhr = new XMLHttpRequest();
+
+                xhr.upload.addEventListener('progress', function(e) {
+                    if (e.lengthComputable) {
+                        const percentComplete = Math.round((e.loaded / e.total) * 100);
+                        progressBarFill.style.width = percentComplete + '%';
+                        progressPercentage.textContent = percentComplete + '%';
+                        
+                        const loadedMB = (e.loaded / 1024 / 1024).toFixed(2);
+                        const totalMB = (e.total / 1024 / 1024).toFixed(2);
+                        progressDetails.textContent = `${loadedMB} MB / ${totalMB} MB`;
+                    }
+                });
+
+                xhr.addEventListener('load', function() {
+                    console.log('📥 Загрузка завершена, статус:', xhr.status);
+                    if (xhr.status === 200 || xhr.status === 302) {
+                        progressText.textContent = '✅ Загрузка завершена!';
+                        progressBarFill.style.width = '100%';
+                        progressPercentage.textContent = '100%';
+                        
+                        // Показываем кнопку ОК
+                        progressOkButton.classList.add('show');
+                        console.log('✅ Кнопка ОК показана');
+                    } else {
+                        console.error('❌ Ошибка загрузки, статус:', xhr.status);
+                        progressText.textContent = '❌ Ошибка загрузки';
+                        progressBarFill.style.background = 'linear-gradient(90deg, #f87171, #dc2626)';
+                        progressDetails.textContent = 'Попробуйте снова';
+                        
+                        // Показываем кнопку ОК для закрытия
+                        progressOkButton.classList.add('show');
+                    }
+                });
+
+                xhr.addEventListener('error', function() {
+                    console.error('❌ Ошибка сети');
+                    progressText.textContent = '❌ Ошибка сети';
+                    progressBarFill.style.background = 'linear-gradient(90deg, #f87171, #dc2626)';
+                    progressDetails.textContent = 'Проверьте соединение';
+                    
+                    // Показываем кнопку ОК для закрытия
+                    progressOkButton.classList.add('show');
+                });
+
+                console.log('📤 Отправка запроса на:', form.action);
+                xhr.open('POST', form.action);
+                xhr.send(formData);
+            }
+
+            // Обработка выбора файлов в toolbar форме
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    console.log('Файлы выбраны в toolbar:', this.files.length);
+                    if (this.files && this.files.length > 0) {
+                        uploadFiles(uploadForm, this.files);
+                    }
+                });
+            }
+
+            // Обработка выбора файлов в floating button форме
+            if (fileInputDirect) {
+                fileInputDirect.addEventListener('change', function() {
+                    console.log('Файлы выбраны в floating button:', this.files.length);
+                    if (this.files && this.files.length > 0) {
+                        uploadFiles(uploadDirectForm, this.files);
+                    }
+                });
+            }
+
+            // Предотвращаем стандартную отправку форм
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                });
+            }
+            if (uploadDirectForm) {
+                uploadDirectForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                });
+            }
+        }
+
+        // Инициализируем прогресс бар после загрузки страницы
+        window.addEventListener('load', setupUploadProgress);
+    </script>
+
+</body>
+</html>

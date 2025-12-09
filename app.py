@@ -973,6 +973,22 @@ if __name__ == '__main__':
     print(f"🚀 Запуск сервера в режиме: {'DEBUG' if debug_mode else 'PRODUCTION'}")
     if not debug_mode:
         print("💡 Для включения debug режима добавьте флаг: python app.py --debug")
-    
+
+    # Автоматический вывод локального IP
+    import socket
+    def get_local_ip():
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            s.connect(('10.255.255.255', 1))
+            IP = s.getsockname()[0]
+        except Exception:
+            IP = '127.0.0.1'
+        finally:
+            s.close()
+        return IP
+    local_ip = get_local_ip()
+    print(f"🌐 Откройте в браузере: http://localhost:3000")
+    print(f"🌐 Или с другого устройства: http://{local_ip}:3000")
+
     # Запуск сервера (доступен в локальной сети)
     app.run(host='0.0.0.0', port=3000, debug=debug_mode, threaded=True)
